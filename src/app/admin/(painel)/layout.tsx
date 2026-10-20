@@ -19,6 +19,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
       <SiteHeader>
         <nav className="flex items-center gap-3 text-sm sm:gap-4">
           <Link href="/admin" className="font-semibold hover:underline">Itens</Link>
+          <Link href="/admin/qr-code" className="font-semibold hover:underline">QR Code</Link>
           <Button size="sm" variant="accent" nativeButton={false} render={<Link href="/admin/itens/novo" />}>
             Novo item
           </Button>
