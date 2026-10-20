@@ -56,12 +56,16 @@ export async function buildPosterPdf(layout: QrLayout, content: PosterContent): 
   doc.setDrawColor(c.ink).setLineWidth(BORDER);
   doc.line(margin, margin + markSize + 5, width - margin, margin + markSize + 5);
 
-  // Título e subtítulo.
-  let y = margin + markSize + 24;
-  doc.setFont("SpaceGrotesk", "bold").setFontSize(44).setTextColor(c.ink);
-  const titleLines = doc.splitTextToSize(content.title, inner) as string[];
-  doc.text(titleLines, margin, y, { lineHeightFactor: 1.05 });
-  y += titleLines.length * 44 * PT_TO_MM * 1.05 + 4;
+  // Título e subtítulo (opcionais).
+  const headerBottom = margin + markSize + 5;
+  const hasText = Boolean(content.title.trim() || content.subtitle.trim());
+  let y = headerBottom + 19;
+  if (content.title.trim()) {
+    doc.setFont("SpaceGrotesk", "bold").setFontSize(44).setTextColor(c.ink);
+    const titleLines = doc.splitTextToSize(content.title.trim(), inner) as string[];
+    doc.text(titleLines, margin, y, { lineHeightFactor: 1.05 });
+    y += titleLines.length * 44 * PT_TO_MM * 1.05 + 4;
+  }
   if (content.subtitle.trim()) {
     doc.setFont("SpaceGrotesk", "normal").setFontSize(15).setTextColor(c.muted);
     const subtitleLines = doc.splitTextToSize(content.subtitle, inner) as string[];
@@ -72,7 +76,9 @@ export async function buildPosterPdf(layout: QrLayout, content: PosterContent): 
   // Cartão do QR com sombra dura.
   const card = 118;
   const cardX = (width - card) / 2 - SHADOW / 2;
-  const cardY = Math.max(y + 12, 128);
+  const footer = 16;
+  const blockHeight = card + SHADOW + 12 + 13;
+  const cardY = hasText ? Math.max(y + 12, 128) : headerBottom + (height - footer - headerBottom - blockHeight) / 2;
   box(cardX + SHADOW, cardY + SHADOW, card, card, c.ink, false);
   box(cardX, cardY, card, card, c.card);
   const unit = card / layout.total;
@@ -97,7 +103,6 @@ export async function buildPosterPdf(layout: QrLayout, content: PosterContent): 
   doc.text(label, width / 2, labelY + 8.8, { align: "center" });
 
   // Rodapé.
-  const footer = 16;
   box(0, height - footer, width, footer, c.ink, false);
   doc.setFont("SpaceGrotesk", "normal").setFontSize(10).setTextColor(c.background);
   doc.text("Fotos, valores e contato pelo WhatsApp em cada item.", width / 2, height - footer / 2 + 1.2, { align: "center" });

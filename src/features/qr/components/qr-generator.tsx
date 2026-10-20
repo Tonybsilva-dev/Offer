@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { buildQrLayout, isValidSiteUrl, qrSvgMarkup } from "../domain/qr-shapes";
 
 const FILE_NAME = "offer-qr-code";
-const DEFAULT_TITLE = "Itens à venda e para troca";
 
 function download(blob: Blob, name: string) {
   const link = document.createElement("a");
@@ -19,7 +18,7 @@ function download(blob: Blob, name: string) {
 
 export function QrGenerator({ defaultUrl }: { defaultUrl: string }) {
   const [url, setUrl] = useState(defaultUrl);
-  const [title, setTitle] = useState(DEFAULT_TITLE);
+  const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("Aponte a câmera do celular para o QR Code e veja tudo no site.");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +39,7 @@ export function QrGenerator({ defaultUrl }: { defaultUrl: string }) {
     setError("");
     try {
       const { buildPosterPdf } = await import("../pdf/build-poster-pdf");
-      const doc = await buildPosterPdf(layout, { title: title.trim() || DEFAULT_TITLE, subtitle, url });
+      const doc = await buildPosterPdf(layout, { title, subtitle, url });
       doc.save(`${FILE_NAME}.pdf`);
     } catch {
       setError("Não foi possível gerar o PDF. Tente novamente.");
@@ -60,11 +59,11 @@ export function QrGenerator({ defaultUrl }: { defaultUrl: string }) {
           </span>
         </label>
         <label className="block space-y-1 text-sm">
-          <span className="text-xs font-semibold tracking-wide uppercase">Título do cartaz</span>
+          <span className="text-xs font-semibold tracking-wide uppercase">Título do cartaz (opcional)</span>
           <Input value={title} maxLength={60} onChange={(e) => setTitle(e.target.value)} />
         </label>
         <label className="block space-y-1 text-sm">
-          <span className="text-xs font-semibold tracking-wide uppercase">Subtítulo</span>
+          <span className="text-xs font-semibold tracking-wide uppercase">Subtítulo (opcional)</span>
           <Textarea value={subtitle} rows={2} maxLength={120} onChange={(e) => setSubtitle(e.target.value)} />
         </label>
 
