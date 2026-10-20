@@ -3,16 +3,24 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ItemDetail, ItemDetailSkeleton } from "@/features/items/components/public/item-detail";
 import { itemRepository } from "@/features/items/server/container";
-import { imageUrl } from "@/features/items/image-url";
+import { ITEM_CONDITIONS } from "@/features/items/domain/item";
+import { formatCents } from "@/features/items/domain/price";
 import { SiteHeader } from "@/shared/ui/site-header";
 
 export async function generateMetadata({ params }: PageProps<"/item/[id]">): Promise<Metadata> {
   const item = await itemRepository().findById((await params).id);
   if (!item) return { title: "Item não encontrado" };
+  const title = item.fullName || item.title;
+  const price = item.isLot && item.priceCents === 0 ? "Itens diversos" : formatCents(item.priceCents);
+  const summary = `${price} · ${ITEM_CONDITIONS[item.condition]} · ${item.brand}`;
+  const description = item.description.trim() ? `${summary}. ${item.description.trim().slice(0, 140)}` : summary;
+  // A imagem de compartilhamento vem de opengraph-image.tsx, gerada por item.
   return {
-    title: item.title,
-    description: item.fullName || item.description.slice(0, 150),
-    openGraph: { images: [imageUrl(item.mainImage)] },
+    title,
+    description,
+    alternates: { canonical: `/item/${item.id}` },
+    openGraph: { type: "website", title, description, url: `/item/${item.id}` },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

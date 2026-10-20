@@ -1,6 +1,6 @@
 import type { jsPDF } from "jspdf";
 import type { QrLayout } from "../domain/qr-shapes";
-import { QR_THEME } from "../domain/theme";
+import { BRAND_THEME } from "@/shared/brand/theme";
 
 export type PosterContent = { title: string; subtitle: string; url: string };
 
@@ -33,7 +33,7 @@ export async function buildPosterPdf(layout: QrLayout, content: PosterContent): 
   doc.addFileToVFS("SpaceGrotesk-Medium.ttf", medium);
   doc.addFont("SpaceGrotesk-Medium.ttf", "SpaceGrotesk", "normal");
 
-  const c = QR_THEME;
+  const c = BRAND_THEME;
   const { margin, width, height } = PAGE;
   const inner = width - margin * 2;
   const box = (x: number, y: number, w: number, h: number, fill: string, stroke = true) => {

@@ -27,8 +27,8 @@ function oklchToHex([L, C, hue]: readonly [number, number, number]): string {
   return `#${linear.map(channel).join("")}`;
 }
 
-export type QrTheme = Record<keyof typeof OKLCH, string>;
+export type BrandTheme = Record<keyof typeof OKLCH, string>;
 
-export const QR_THEME = Object.fromEntries(
+export const BRAND_THEME = Object.fromEntries(
   Object.entries(OKLCH).map(([name, value]) => [name, oklchToHex(value)]),
-) as QrTheme;
+) as BrandTheme;

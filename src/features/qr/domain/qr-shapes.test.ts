@@ -1,7 +1,7 @@
 import jsQR from "jsqr";
 import { describe, expect, it } from "vitest";
 import { buildQrLayout, isValidSiteUrl, qrSvgMarkup } from "./qr-shapes";
-import { QR_THEME } from "./theme";
+import { BRAND_THEME } from "@/shared/brand/theme";
 
 const SCALE = 8;
 
@@ -18,8 +18,8 @@ function rasterize(url: string) {
       }
     }
   };
-  paint(0, 0, layout.total, QR_THEME.card);
-  for (const shape of layout.shapes) paint(shape.x, shape.y, shape.size, QR_THEME[shape.fill]);
+  paint(0, 0, layout.total, BRAND_THEME.card);
+  for (const shape of layout.shapes) paint(shape.x, shape.y, shape.size, BRAND_THEME[shape.fill]);
   return { data, side };
 }
 

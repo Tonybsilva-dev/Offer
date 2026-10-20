@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
-import { QR_THEME, type QrTheme } from "./theme";
+import { BRAND_THEME, type BrandTheme } from "@/shared/brand/theme";
 
-export type QrShape = { x: number; y: number; size: number; fill: keyof QrTheme };
+export type QrShape = { x: number; y: number; size: number; fill: keyof BrandTheme };
 
 export type QrLayout = {
   /** Lado total em módulos, já com a zona de silêncio. */
@@ -70,7 +70,7 @@ export function buildQrLayout(url: string): QrLayout {
 }
 
 /** SVG autônomo (usa só formas e texto), para pré-visualizar e baixar. */
-export function qrSvgMarkup(layout: QrLayout, theme: QrTheme = QR_THEME) {
+export function qrSvgMarkup(layout: QrLayout, theme: BrandTheme = BRAND_THEME) {
   const rects = layout.shapes
     .map((s) => `<rect x="${s.x}" y="${s.y}" width="${s.size}" height="${s.size}" fill="${theme[s.fill]}"/>`)
     .join("");
