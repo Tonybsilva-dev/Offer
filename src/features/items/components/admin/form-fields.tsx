@@ -1,7 +1,5 @@
 import { Checkbox as UiCheckbox } from "@/components/ui/checkbox";
-
-export const inputClass =
-  "h-10 w-full border-2 border-input bg-card px-3 text-base outline-none md:text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+import { Select as UiSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -41,12 +39,17 @@ type SelectProps<T extends string> = {
 
 export function Select<T extends string>({ value, options, onChange }: SelectProps<T>) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value as T)} className={inputClass}>
-      {(Object.entries(options) as [T, string][]).map(([key, label]) => (
-        <option key={key} value={key}>
-          {label}
-        </option>
-      ))}
-    </select>
+    <UiSelect value={value} items={options} onValueChange={(next) => next && onChange(next as T)}>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {(Object.entries(options) as [T, string][]).map(([key, label]) => (
+          <SelectItem key={key} value={key}>
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </UiSelect>
   );
 }
