@@ -1,0 +1,26 @@
+# Produção: a imagem vem pronta do GHCR (build na CI, ver .github/workflows/production.yml).
+# Na VPS a pasta guarda só este arquivo, o .env (IMAGE, IMAGE_TAG) e o .env.production.
+name: bazar-production
+
+services:
+  bazar:
+    image: ${IMAGE:?IMAGE obrigatoria}:${IMAGE_TAG:?IMAGE_TAG obrigatoria}
+    container_name: bazar-production
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env.production
+    mem_limit: 512m
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3

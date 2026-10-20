@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bazar
 
-## Getting Started
+Catálogo simples de itens à venda (Next.js 16: front-end + API), com painel e contato via WhatsApp.
+Spec: [specs/001-bazar-catalogo/spec.md](specs/001-bazar-catalogo/spec.md).
 
-First, run the development server:
+## Rodar
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local   # preencha ADMIN_PASSWORD, SESSION_SECRET e WHATSAPP_NUMBER
+pnpm install
+pnpm dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Vitrine: `/` · Item: `/item/<id>` · Painel: `/admin` (login em `/admin/login`) · Health: `/api/health`
+- **Banco:** `DATABASE_URL` aponta para o database `bazar` (mesmo servidor Postgres do TrinketOS). Sem ela, em dev, usa Postgres embutido (PGlite) em `./data/pglite`. Migrações em `src/shared/server/migrations`, aplicadas na primeira conexão.
+- **Fotos:** com `R2_*` preenchido, vão para o R2 (prefixo `R2_PREFIX`, padrão `bazar/`); sem, em dev, para `./data/uploads`. Em produção, banco e R2 são obrigatórios.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy (modelo do Learn)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Push em `main` → `pnpm qa` → imagem no GHCR → SSH na VPS → `docker compose up` → espera `healthy` → smoke test em `/api/health`. Container `bazar-production` em `127.0.0.1:3000`.
 
-## Learn More
+Configurar no GitHub (repositório → Settings):
+- Secrets: `BAZAR_ENV_PRODUCTION` (conteúdo completo do .env de produção), `SSH_HOST`, `SSH_USERNAME`, `SSH_PRIVATE_KEY`, `SSH_PASSWORD`
+- Variables: `BAZAR_PUBLIC_URL` (ex.: `https://bazar.seudominio.com.br`)
+- Environment: `Production`
 
-To learn more about Next.js, take a look at the following resources:
+Na VPS: Nginx/DNS/Certbot iguais ao Learn, com `proxy_pass http://127.0.0.1:3000`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`pnpm qa` (lint + typecheck + testes) · `pnpm test` · `pnpm build` · `pnpm start`
 
-## Deploy on Vercel
+## Estrutura
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/features/items     domínio (schema, preço, WhatsApp), repositórios Postgres/in-memory, UI pública e admin
+src/features/uploads   validação por magic bytes; armazenamento R2 ou disco local
+src/features/auth      sessão por cookie assinado (HMAC)
+src/shared/server      conexão Postgres, migrações, env
+src/app                páginas e route handlers (/api/items, /api/uploads, /api/images, /api/auth, /api/health)
+```

@@ -1,0 +1,164 @@
+name: Bazar Production CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: bazar-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  DEPLOY_PATH: deploy/antonio/bazar/production
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      # Versão do pnpm lida de "packageManager" no package.json.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm qa
+
+  build:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.name.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      # GHCR exige nome em minúsculas; o dono do repositório pode ter maiúsculas.
+      - name: Image name
+        id: name
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.BAZAR_PUBLIC_URL }}
+          tags: |
+            ${{ steps.name.outputs.image }}:${{ github.sha }}
+            ${{ steps.name.outputs.image }}:production
+          cache-from: type=gha,scope=bazar-production
+          cache-to: type=gha,scope=bazar-production,mode=max
+
+  deploy:
+    needs: build
+    # Execuções manuais em outras branches não fazem deploy em produção.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+    environment:
+      name: Production
+      url: ${{ vars.BAZAR_PUBLIC_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare bundle
+        env:
+          BAZAR_ENV: ${{ secrets.BAZAR_ENV_PRODUCTION }}
+          PUBLIC_URL: ${{ vars.BAZAR_PUBLIC_URL }}
+          IMAGE: ${{ needs.build.outputs.image }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          set -eu
+          test -n "$BAZAR_ENV" || { echo "BAZAR_ENV_PRODUCTION ausente"; exit 1; }
+          test -n "$PUBLIC_URL" || { echo "Variável BAZAR_PUBLIC_URL ausente"; exit 1; }
+          umask 077
+          mkdir -p deploy
+          cp docker-compose-production.yaml deploy/
+          printf '%s\n' "$BAZAR_ENV" > deploy/.env.production
+          printf 'IMAGE=%s\nIMAGE_TAG=%s\n' "$IMAGE" "$COMMIT_SHA" > deploy/.env
+      - name: Create remote directory
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            set -eu
+            mkdir -p "$HOME/${{ env.DEPLOY_PATH }}"
+            chmod 700 "$HOME/${{ env.DEPLOY_PATH }}"
+      - name: Copy bundle
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          source: deploy/docker-compose-production.yaml,deploy/.env,deploy/.env.production
+          target: ${{ env.DEPLOY_PATH }}
+          strip_components: 1
+      - name: Deploy and check health
+        uses: appleboy/ssh-action@v1
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          envs: GHCR_TOKEN,GHCR_USER
+          command_timeout: 15m
+          script: |
+            set -eu
+            cd "$HOME/${{ env.DEPLOY_PATH }}"
+            chmod 600 .env .env.production
+            export DOCKER_CONFIG=$(mktemp -d)
+            trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+            printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            docker compose -f docker-compose-production.yaml config --quiet
+            docker compose -f docker-compose-production.yaml pull
+            docker compose -f docker-compose-production.yaml up -d --remove-orphans
+            status=starting
+            for i in $(seq 1 120); do
+              status=$(docker inspect -f '{{.State.Health.Status}}' bazar-production)
+              [ "$status" = healthy ] && break
+              sleep 5
+            done
+            if [ "$status" != healthy ]; then
+              docker logs --tail 80 bazar-production
+              exit 1
+            fi
+      - name: Public smoke test
+        env:
+          PUBLIC_URL: ${{ vars.BAZAR_PUBLIC_URL }}
+        run: curl -fsS --connect-timeout 10 --max-time 20 --retry 5 --retry-delay 5 --retry-all-errors "${PUBLIC_URL%/}/api/health" > /dev/null
+      - name: Deploy summary
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+          IMAGE: ${{ needs.build.outputs.image }}
+          PUBLIC_URL: ${{ vars.BAZAR_PUBLIC_URL }}
+        run: |
+          {
+            echo '## Bazar Production'
+            printf '\nCommit: %s\n' "$COMMIT_SHA"
+            printf '\nImagem: %s:%s\n' "$IMAGE" "$COMMIT_SHA"
+            printf '\nURL: %s\n' "$PUBLIC_URL"
+          } >> "$GITHUB_STEP_SUMMARY"
