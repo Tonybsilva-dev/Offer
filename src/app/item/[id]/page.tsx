@@ -19,7 +19,8 @@ export async function generateMetadata({ params }: PageProps<"/item/[id]">): Pro
     title,
     description,
     alternates: { canonical: `/item/${item.id}` },
-    openGraph: { type: "website", title, description, url: `/item/${item.id}` },
+    // O openGraph da página substitui o do layout por inteiro, então siteName e locale precisam ser repetidos.
+    openGraph: { type: "website", siteName: "Offer", locale: "pt_BR", title, description, url: `/item/${item.id}` },
     twitter: { card: "summary_large_image", title, description },
   };
 }
