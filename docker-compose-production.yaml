@@ -8,7 +8,7 @@ services:
     container_name: bazar-production
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3017:3000"
     env_file:
       - .env.production
     mem_limit: 512m
