@@ -6,7 +6,7 @@ import { ITEM_STATUSES } from "../../domain/item";
 import { formatCents } from "../../domain/price";
 import { imageUrl } from "../../image-url";
 import { itemRepository } from "../../server/container";
-import { DeleteItemButton } from "./delete-item-button";
+import { ItemActionsMenu } from "./item-actions-menu";
 
 export async function AdminItemTable() {
   await connection();
@@ -24,7 +24,7 @@ export async function AdminItemTable() {
   return (
     <ul className="divide-y-2 divide-foreground border-2 border-foreground bg-card">
       {items.map((item) => (
-        <li key={item.id} className="flex flex-wrap items-center gap-3 p-3">
+        <li key={item.id} className="flex items-center gap-3 p-3">
           <div className="relative size-14 shrink-0 overflow-hidden border-2 border-foreground bg-muted">
             <Image src={imageUrl(item.mainImage)} alt="" fill sizes="56px" className="object-cover" />
           </div>
@@ -34,15 +34,7 @@ export async function AdminItemTable() {
               {item.isLot && item.priceCents === 0 ? "Itens diversos" : formatCents(item.priceCents)} · {ITEM_STATUSES[item.status]} · ID {item.id}
             </p>
           </div>
-          <div className="flex w-full items-center justify-end gap-4 text-sm sm:w-auto sm:shrink-0">
-            <Link href={`/item/${item.id}`} className="text-muted-foreground hover:text-foreground" target="_blank">
-              Ver
-            </Link>
-            <Link href={`/admin/itens/${item.id}`} className="font-semibold underline-offset-4 hover:underline">
-              Editar
-            </Link>
-            <DeleteItemButton id={item.id} title={item.title} />
-          </div>
+          <ItemActionsMenu id={item.id} title={item.title} />
         </li>
       ))}
     </ul>
