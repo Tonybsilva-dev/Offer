@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { imageUrl } from "../../image-url";
+import { ImageLightbox } from "./image-lightbox";
 
 export function ItemGallery({ images, alt }: { images: string[]; alt: string }) {
   const track = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  const [expanded, setExpanded] = useState(false);
 
   function goTo(next: number) {
     const target = (next + images.length) % images.length;
@@ -28,7 +30,13 @@ export function ItemGallery({ images, alt }: { images: string[]; alt: string }) 
           className="flex aspect-square snap-x snap-mandatory overflow-x-auto [scrollbar-width:none]"
         >
           {images.map((name, i) => (
-            <div key={name} className="relative w-full shrink-0 snap-center">
+            <button
+              key={name}
+              type="button"
+              onClick={() => setExpanded(true)}
+              aria-label={`Ampliar foto ${i + 1} de ${images.length}`}
+              className="relative w-full shrink-0 cursor-zoom-in snap-center"
+            >
               <Image
                 src={imageUrl(name)}
                 alt={`${alt} (foto ${i + 1} de ${images.length})`}
@@ -37,7 +45,7 @@ export function ItemGallery({ images, alt }: { images: string[]; alt: string }) 
                 sizes="(min-width: 768px) 50vw, 100vw"
                 className="object-contain"
               />
-            </div>
+            </button>
           ))}
         </div>
         {images.length > 1 && (
@@ -68,6 +76,14 @@ export function ItemGallery({ images, alt }: { images: string[]; alt: string }) 
           ))}
         </div>
       )}
+      <ImageLightbox
+        images={images}
+        alt={alt}
+        index={index}
+        open={expanded}
+        onOpenChange={setExpanded}
+        onIndexChange={goTo}
+      />
     </div>
   );
 }
