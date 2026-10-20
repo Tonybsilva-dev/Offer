@@ -32,7 +32,7 @@ export function KeyValueList<T extends Record<string, string>>(props: Props<T>) 
   return (
     <div className="space-y-2">
       {rows.map((row, index) => (
-        <div key={index} className="flex items-start gap-2">
+        <div key={index} className="flex flex-col gap-2 sm:flex-row sm:items-start">
           {columns.map((col) => {
             const common = {
               value: row[col.name],
@@ -56,7 +56,7 @@ export function KeyValueList<T extends Record<string, string>>(props: Props<T>) 
               />
             );
           })}
-          <div className="flex shrink-0 text-muted-foreground">
+          <div className="flex shrink-0 self-end text-muted-foreground sm:self-auto">
             <IconButton label="Subir" onClick={() => move(index, -1)}>↑</IconButton>
             <IconButton label="Descer" onClick={() => move(index, 1)}>↓</IconButton>
             <IconButton label="Remover" onClick={() => onChange(rows.filter((_, i) => i !== index))}>

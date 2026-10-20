@@ -100,7 +100,7 @@ export function ItemForm({ item }: { item?: Item }) {
       </Fieldset>
 
       <div className="sticky bottom-0 flex justify-end gap-3 border-t-2 border-foreground bg-background/90 py-3 backdrop-blur">
-        <Button type="submit" size="lg" variant="accent" disabled={saving}>
+        <Button type="submit" size="lg" variant="accent" className="w-full sm:w-auto" disabled={saving}>
           {saving ? "Salvando..." : item ? "Salvar alterações" : "Cadastrar item"}
         </Button>
       </div>

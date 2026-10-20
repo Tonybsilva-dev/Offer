@@ -21,7 +21,7 @@ export default function ItemPage({ params }: PageProps<"/item/[id]">) {
     <>
       <SiteHeader>
         <Link href="/" className="text-sm font-semibold hover:underline">
-          ← Todos os itens
+          ← <span className="hidden sm:inline">Todos os </span>itens
         </Link>
       </SiteHeader>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 
 export function SearchForm() {
   return (
-    <Form action="/" className="flex w-full max-w-sm gap-2">
+    <Form action="/" className="flex min-w-0 flex-1 gap-2 sm:max-w-sm">
       <Input name="q" type="search" placeholder="Buscar itens" aria-label="Buscar itens" />
       <Button type="submit" variant="accent">
         Buscar

@@ -1,7 +1,7 @@
 import { Checkbox as UiCheckbox } from "@/components/ui/checkbox";
 
 export const inputClass =
-  "h-10 w-full border-2 border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+  "h-10 w-full border-2 border-input bg-card px-3 text-base outline-none md:text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (

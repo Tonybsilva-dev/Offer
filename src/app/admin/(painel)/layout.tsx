@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <>
       <SiteHeader>
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex items-center gap-3 text-sm sm:gap-4">
           <Link href="/admin" className="font-semibold hover:underline">Itens</Link>
           <Button size="sm" variant="accent" nativeButton={false} render={<Link href="/admin/itens/novo" />}>
             Novo item
