@@ -27,8 +27,8 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 border-2 border-foreground bg-card p-6 shadow-hard">
-      <h1 className="text-2xl font-bold">Painel do Offer</h1>
+    <form onSubmit={onSubmit} className="space-y-4 border-2 border-foreground bg-card p-5 shadow-hard sm:p-6">
+      <h1 className="text-xl font-bold sm:text-2xl">Painel do Offer</h1>
       <label className="block space-y-1 text-sm">
         <span className="text-xs font-semibold tracking-wide uppercase">Senha</span>
         <Input name="password" type="password" required autoFocus autoComplete="current-password" />
