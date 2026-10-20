@@ -21,7 +21,32 @@ describe("parsePriceToCents", () => {
   });
 });
 
+describe("parsePriceToCents com allowZero", () => {
+  it.each([["0", 0], ["0,00", 0], ["", 0], ["  ", 0], ["15,00", 1500]])("aceita %s", (input, expected) => {
+    expect(parsePriceToCents(input, { allowZero: true })).toBe(expected);
+  });
+
+  it("continua rejeitando valores inválidos", () => {
+    expect(parsePriceToCents("abc", { allowZero: true })).toBeNull();
+    expect(parsePriceToCents("-1", { allowZero: true })).toBeNull();
+  });
+});
+
 describe("parseItemInput", () => {
+  it("aceita lote de itens diversos com valor 0 ou vazio", () => {
+    for (const price of ["0", "", 0]) {
+      const result = parseItemInput(makeItemPayload({ isLot: true, price }));
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.value.priceCents).toBe(0);
+    }
+  });
+
+  it("exige valor positivo quando não é lote", () => {
+    for (const price of ["0", ""]) {
+      expect(parseItemInput(makeItemPayload({ isLot: false, price })).ok).toBe(false);
+    }
+  });
+
   it("aceita item válido e normaliza tags e preço", () => {
     const result = parseItemInput(makeItemPayload({ tags: ["Bike", "bike", "Aro 29"] }));
     expect(result.ok).toBe(true);

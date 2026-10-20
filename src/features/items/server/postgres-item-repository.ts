@@ -12,6 +12,7 @@ type ItemRow = {
   status: Item["status"];
   description: string;
   price_cents: number;
+  is_lot: boolean;
   is_lowest_price: boolean;
   accepts_trade: boolean;
   tags: string[];
@@ -23,10 +24,10 @@ type ItemRow = {
   updated_at: Date | string;
 };
 
-// $1 = id; $2..$15 = campos editáveis, na ordem de toParams.
+// $1 = id; $2..$16 = campos editáveis, na ordem de toParams.
 const FIELDS = `title, full_name, brand, condition, status, description, price_cents,
-  is_lowest_price, accepts_trade, tags, specs, details, main_image, images`;
-const VALUES = "$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13::jsonb, $14, $15";
+  is_lot, is_lowest_price, accepts_trade, tags, specs, details, main_image, images`;
+const VALUES = "$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14::jsonb, $15, $16";
 
 export class PostgresItemRepository implements ItemRepository {
   constructor(private db: () => Promise<SqlClient>) {}
@@ -73,6 +74,7 @@ function toParams(input: ItemInput): unknown[] {
     input.status,
     input.description,
     input.priceCents,
+    input.isLot,
     input.isLowestPrice,
     input.acceptsTrade,
     input.tags,
@@ -93,6 +95,7 @@ function toItem(row: ItemRow): Item {
     status: row.status,
     description: row.description,
     priceCents: row.price_cents,
+    isLot: row.is_lot,
     isLowestPrice: row.is_lowest_price,
     acceptsTrade: row.accepts_trade,
     tags: row.tags,

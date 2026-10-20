@@ -14,6 +14,7 @@ export function ItemSummary({ item }: { item: Item }) {
 
       <div className="flex flex-wrap gap-2">
         <Badge tone={STATUS_TONE[item.status]}>{ITEM_STATUSES[item.status]}</Badge>
+        {item.isLot && <Badge tone="warning">Lote</Badge>}
         <Badge>{ITEM_CONDITIONS[item.condition]}</Badge>
         <Badge tone={item.acceptsTrade ? "success" : "neutral"}>
           {item.acceptsTrade ? "Aceita troca" : "Não aceita troca"}
@@ -21,13 +22,21 @@ export function ItemSummary({ item }: { item: Item }) {
       </div>
 
       <div>
-        <p className="text-4xl font-bold tracking-tight">{formatCents(item.priceCents)}</p>
-        {item.isLowestPrice ? (
-          <p className="mt-2 inline-block border-2 border-foreground bg-accent px-2 py-0.5 text-xs font-semibold tracking-wide text-accent-foreground uppercase">
-            Este já é o menor valor
-          </p>
+        {item.isLot && item.priceCents === 0 ? (
+          <>
+            <p className="text-4xl font-bold tracking-tight">Itens diversos</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Cada item tem o seu valor. Veja a lista em Especificações e combine os que quiser.
+            </p>
+          </>
         ) : (
-          <p className="mt-1 text-sm text-muted-foreground">Valor negociável.</p>
+          <>
+            {item.isLot && (
+              <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Valor do lote</p>
+            )}
+            <p className="text-4xl font-bold tracking-tight">{formatCents(item.priceCents)}</p>
+            <PriceNote item={item} />
+          </>
         )}
       </div>
 
@@ -42,4 +51,15 @@ export function ItemSummary({ item }: { item: Item }) {
       )}
     </div>
   );
+}
+
+function PriceNote({ item }: { item: Item }) {
+  if (item.isLowestPrice) {
+    return (
+      <p className="mt-2 inline-block border-2 border-foreground bg-accent px-2 py-0.5 text-xs font-semibold tracking-wide text-accent-foreground uppercase">
+        Este já é o menor valor
+      </p>
+    );
+  }
+  return <p className="mt-1 text-sm text-muted-foreground">Valor negociável.</p>;
 }

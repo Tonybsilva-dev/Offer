@@ -9,6 +9,7 @@ export function makeItemPayload(overrides: Partial<ItemPayload> = {}): ItemPaylo
     status: "disponivel",
     description: "Pouco uso, revisada.",
     price: "1.500,00",
+    isLot: false,
     isLowestPrice: false,
     acceptsTrade: true,
     tags: ["bike"],

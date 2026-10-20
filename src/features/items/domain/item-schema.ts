@@ -23,7 +23,8 @@ export const itemInputSchema = z
     condition: z.enum(conditionKeys),
     status: z.enum(statusKeys).default("disponivel"),
     description: text(L.descriptionMax).default(""),
-    price: z.union([z.string(), z.number()]),
+    price: z.union([z.string(), z.number()]).default(""),
+    isLot: z.boolean().default(false),
     isLowestPrice: z.boolean().default(false),
     acceptsTrade: z.boolean().default(false),
     tags: z.array(required(L.tagMax, "Tag")).max(L.tagsMax).default([]),
@@ -33,7 +34,7 @@ export const itemInputSchema = z
     images: z.array(imageName).max(L.extraImagesMax, `Máximo de ${L.extraImagesMax} imagens adicionais`).default([]),
   })
   .superRefine((data, ctx) => {
-    if (parsePriceToCents(data.price) === null) {
+    if (parsePriceToCents(data.price, { allowZero: data.isLot }) === null) {
       ctx.addIssue({ code: "custom", path: ["price"], message: "Valor inválido" });
     }
     const seen = new Set<string>();
@@ -48,7 +49,7 @@ export const itemInputSchema = z
   .transform(({ price, tags, images, mainImage, ...rest }): ItemInput => ({
     ...rest,
     mainImage,
-    priceCents: parsePriceToCents(price) as number,
+    priceCents: parsePriceToCents(price, { allowZero: rest.isLot }) as number,
     tags: [...new Set(tags.map((tag) => tag.toLowerCase()))],
     images: images.filter((name) => name !== mainImage),
   }));

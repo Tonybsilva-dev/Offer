@@ -1,9 +1,10 @@
 import type { SqlClient } from "../sql-client";
 import { createItems } from "./001-create-items";
+import { addItemLot } from "./002-add-item-lot";
 
 export type Migration = { id: string; statements: string[] };
 
-export const MIGRATIONS: Migration[] = [createItems];
+export const MIGRATIONS: Migration[] = [createItems, addItemLot];
 
 const LOCK_KEY = 4_820_301; // advisory lock exclusivo do Bazar
 

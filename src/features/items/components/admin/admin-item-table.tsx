@@ -31,7 +31,7 @@ export async function AdminItemTable() {
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold">{item.title}</p>
             <p className="text-xs text-muted-foreground">
-              {formatCents(item.priceCents)} · {ITEM_STATUSES[item.status]} · ID {item.id}
+              {item.isLot && item.priceCents === 0 ? "Itens diversos" : formatCents(item.priceCents)} · {ITEM_STATUSES[item.status]} · ID {item.id}
             </p>
           </div>
           <div className="flex w-full items-center justify-end gap-4 text-sm sm:w-auto sm:shrink-0">

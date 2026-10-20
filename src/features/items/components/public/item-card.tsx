@@ -24,7 +24,12 @@ export function ItemCard({ item }: { item: Item }) {
           </span>
         )}
       </div>
-      <p className="truncate px-3 py-2.5 text-sm font-semibold">{item.title}</p>
+      <div className="px-3 py-2.5">
+        <p className="truncate text-sm font-semibold">{item.title}</p>
+        {item.isLot && (
+          <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Itens diversos</p>
+        )}
+      </div>
     </Link>
   );
 }

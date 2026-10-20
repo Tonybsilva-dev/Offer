@@ -58,8 +58,20 @@ export function ItemForm({ item }: { item?: Item }) {
       </Fieldset>
 
       <Fieldset legend="Venda">
-        <Field label="Valor de venda (R$) *" hint="Ex.: 1.250,00">
-          <Input value={state.price} inputMode="decimal" required onChange={(e) => set("price", e.target.value)} />
+        <Checkbox
+          label="Lote de itens diversos (cada item tem seu preço)"
+          checked={state.isLot}
+          onChange={(v) => set("isLot", v)}
+        />
+        <Field
+          label={state.isLot ? "Valor do lote (R$)" : "Valor de venda (R$) *"}
+          hint={
+            state.isLot
+              ? "Deixe em branco ou 0 para exibir “Itens diversos” e liste o valor de cada item nas especificações."
+              : "Ex.: 1.250,00"
+          }
+        >
+          <Input value={state.price} inputMode="decimal" required={!state.isLot} onChange={(e) => set("price", e.target.value)} />
         </Field>
         <div className="flex flex-wrap gap-6">
           <Checkbox label="Este já é o menor valor" checked={state.isLowestPrice} onChange={(v) => set("isLowestPrice", v)} />

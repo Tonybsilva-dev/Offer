@@ -26,6 +26,7 @@ export type Item = {
   status: ItemStatus;
   description: string;
   priceCents: number;
+  isLot: boolean;
   isLowestPrice: boolean;
   acceptsTrade: boolean;
   tags: string[];
