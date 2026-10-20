@@ -22,7 +22,7 @@ export function ItemGallery({ images, alt }: { images: string[]; alt: string }) 
   }
 
   return (
-    <div className="space-y-3">
+    <div className="min-w-0 space-y-3">
       <div className="relative overflow-hidden border-2 border-foreground bg-card">
         <div
           ref={track}

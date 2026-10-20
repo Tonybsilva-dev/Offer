@@ -23,11 +23,11 @@ export async function ItemDetail({ params }: { params: Promise<{ id: string }> }
   const whatsappHref = buildWhatsAppLink({ phone: env.whatsappNumber(), item, baseUrl });
 
   return (
-    <article className="space-y-8">
+    <article className="min-w-0 space-y-8">
       <ItemJsonLd item={item} baseUrl={baseUrl} />
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2">
         <ItemGallery images={allImages(item)} alt={item.title} />
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <ItemSummary item={item} />
           <WhatsAppButton href={whatsappHref} disabled={item.status === "vendido"} />
         </div>
@@ -36,7 +36,7 @@ export async function ItemDetail({ params }: { params: Promise<{ id: string }> }
       {item.description && (
         <section>
           <h2 className="mb-2 text-xl font-bold">Descrição</h2>
-          <p className="whitespace-pre-line leading-relaxed text-muted-foreground">{item.description}</p>
+          <p className="whitespace-pre-line break-words leading-relaxed text-muted-foreground">{item.description}</p>
         </section>
       )}
 

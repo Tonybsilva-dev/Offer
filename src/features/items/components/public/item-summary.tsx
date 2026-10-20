@@ -9,7 +9,7 @@ export function ItemSummary({ item }: { item: Item }) {
     <div className="space-y-4">
       <div>
         <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{item.brand}</p>
-        <h1 className="text-3xl font-bold tracking-tight">{item.fullName || item.title}</h1>
+        <h1 className="text-3xl font-bold tracking-tight break-words">{item.fullName || item.title}</h1>
       </div>
 
       <div className="flex flex-wrap gap-2">

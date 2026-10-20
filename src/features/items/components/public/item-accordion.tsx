@@ -10,7 +10,7 @@ export function ItemAccordion({ details }: { details: ItemDetail[] }) {
             {detail.title}
             <span className="text-muted-foreground transition group-open:rotate-180">⌄</span>
           </summary>
-          <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{detail.content}</p>
+          <p className="mt-2 whitespace-pre-line break-words text-sm text-muted-foreground">{detail.content}</p>
         </details>
       ))}
     </div>
