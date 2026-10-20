@@ -10,7 +10,7 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
   const item = await itemRepository().findById((await params).id);
   if (!item) notFound();
-  return <ItemForm item={item} />;
+  return <ItemForm key={item.updatedAt} item={item} />;
 }
 
 export default function EditItemPage({ params }: PageProps<"/admin/itens/[id]">) {
