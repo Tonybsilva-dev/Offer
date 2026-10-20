@@ -15,30 +15,30 @@ export async function AdminItemTable() {
 
   if (items.length === 0) {
     return (
-      <p className="py-16 text-center text-muted">
+      <p className="py-16 text-center text-muted-foreground">
         Nenhum item ainda. <Link href="/admin/itens/novo" className="underline">Cadastre o primeiro</Link>.
       </p>
     );
   }
 
   return (
-    <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+    <ul className="divide-y-2 divide-foreground border-2 border-foreground bg-card">
       {items.map((item) => (
         <li key={item.id} className="flex items-center gap-3 p-3">
-          <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-border/40">
+          <div className="relative size-14 shrink-0 overflow-hidden border-2 border-foreground bg-muted">
             <Image src={imageUrl(item.mainImage)} alt="" fill sizes="56px" className="object-cover" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-medium">{item.title}</p>
-            <p className="text-xs text-muted">
+            <p className="truncate font-semibold">{item.title}</p>
+            <p className="text-xs text-muted-foreground">
               {formatCents(item.priceCents)} · {ITEM_STATUSES[item.status]} · ID {item.id}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-3 text-sm">
-            <Link href={`/item/${item.id}`} className="text-muted hover:text-foreground" target="_blank">
+            <Link href={`/item/${item.id}`} className="text-muted-foreground hover:text-foreground" target="_blank">
               Ver
             </Link>
-            <Link href={`/admin/itens/${item.id}`} className="font-medium hover:underline">
+            <Link href={`/admin/itens/${item.id}`} className="font-semibold underline-offset-4 hover:underline">
               Editar
             </Link>
             <DeleteItemButton id={item.id} title={item.title} />

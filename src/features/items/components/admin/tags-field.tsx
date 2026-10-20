@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ITEM_LIMITS } from "../../domain/limits";
-import { inputClass } from "./form-fields";
+import { Input } from "@/components/ui/input";
 
 type Props = { tags: string[]; onChange: (tags: string[]) => void };
 
@@ -17,7 +17,7 @@ export function TagsField({ tags, onChange }: Props) {
 
   return (
     <div className="space-y-2">
-      <input
+      <Input
         value={draft}
         aria-label="Nova tag"
         placeholder="Digite e pressione Enter (ex.: bike, aro 29)"
@@ -29,13 +29,12 @@ export function TagsField({ tags, onChange }: Props) {
           }
         }}
         onBlur={add}
-        className={inputClass}
       />
       <ul className="flex flex-wrap gap-1.5">
         {tags.map((tag) => (
-          <li key={tag} className="flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs">
+          <li key={tag} className="flex items-center gap-1 border-2 border-foreground bg-card px-2 py-0.5 text-xs font-medium">
             #{tag}
-            <button type="button" aria-label={`Remover ${tag}`} onClick={() => onChange(tags.filter((t) => t !== tag))}>
+            <button type="button" className="hover:text-destructive" aria-label={`Remover ${tag}`} onClick={() => onChange(tags.filter((t) => t !== tag))}>
               ✕
             </button>
           </li>

@@ -8,9 +8,9 @@ export function ItemCard({ item }: { item: Item }) {
   return (
     <Link
       href={`/item/${item.id}`}
-      className="group overflow-hidden rounded-xl border border-border bg-card transition hover:shadow-md"
+      className="group block overflow-hidden border-2 border-foreground bg-card shadow-hard-sm transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard"
     >
-      <div className="relative aspect-square bg-border/40">
+      <div className="relative aspect-square border-b-2 border-foreground bg-muted">
         <Image
           src={imageUrl(item.mainImage)}
           alt={item.title}
@@ -19,12 +19,12 @@ export function ItemCard({ item }: { item: Item }) {
           className={`object-cover transition group-hover:scale-[1.02] ${sold ? "opacity-50 grayscale" : ""}`}
         />
         {item.status !== "disponivel" && (
-          <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white">
+          <span className="absolute left-2 top-2 border-2 border-foreground bg-accent px-2 py-0.5 text-xs font-semibold tracking-wide text-accent-foreground uppercase">
             {sold ? "Vendido" : "Reservado"}
           </span>
         )}
       </div>
-      <p className="truncate px-3 py-2.5 text-sm font-medium">{item.title}</p>
+      <p className="truncate px-3 py-2.5 text-sm font-semibold">{item.title}</p>
     </Link>
   );
 }

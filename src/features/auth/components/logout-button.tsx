@@ -10,7 +10,7 @@ export function LogoutButton() {
     router.refresh();
   }
   return (
-    <button type="button" onClick={logout} className="text-sm text-muted hover:text-foreground">
+    <button type="button" onClick={logout} className="text-sm font-semibold hover:underline">
       Sair
     </button>
   );

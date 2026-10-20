@@ -1,12 +1,14 @@
+import { Checkbox as UiCheckbox } from "@/components/ui/checkbox";
+
 export const inputClass =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground";
+  "h-10 w-full border-2 border-input bg-card px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block space-y-1 text-sm">
-      <span className="font-medium">{label}</span>
+      <span className="text-xs font-semibold tracking-wide uppercase">{label}</span>
       {children}
-      {hint && <span className="block text-xs text-muted">{hint}</span>}
+      {hint && <span className="block text-xs text-muted-foreground">{hint}</span>}
     </label>
   );
 }
@@ -16,7 +18,7 @@ type CheckboxProps = { label: string; checked: boolean; onChange: (value: boolea
 export function Checkbox({ label, checked, onChange }: CheckboxProps) {
   return (
     <label className="flex items-center gap-2 text-sm">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="size-4" />
+      <UiCheckbox checked={checked} onCheckedChange={(value) => onChange(value)} />
       {label}
     </label>
   );
@@ -24,8 +26,8 @@ export function Checkbox({ label, checked, onChange }: CheckboxProps) {
 
 export function Fieldset({ legend, children }: { legend: string; children: React.ReactNode }) {
   return (
-    <fieldset className="space-y-4 rounded-xl border border-border bg-card p-4">
-      <legend className="px-1 text-sm font-semibold">{legend}</legend>
+    <fieldset className="space-y-4 border-2 border-foreground bg-card p-4">
+      <legend className="bg-accent px-2 text-xs font-bold tracking-wide text-accent-foreground uppercase">{legend}</legend>
       {children}
     </fieldset>
   );

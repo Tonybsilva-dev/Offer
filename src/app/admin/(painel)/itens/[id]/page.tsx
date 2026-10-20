@@ -16,8 +16,8 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
 export default function EditItemPage({ params }: PageProps<"/admin/itens/[id]">) {
   return (
     <section className="space-y-4">
-      <h1 className="text-xl font-semibold">Editar item</h1>
-      <Suspense fallback={<p className="text-muted">Carregando...</p>}>
+      <h1 className="text-2xl font-bold">Editar item</h1>
+      <Suspense fallback={<p className="text-muted-foreground">Carregando...</p>}>
         <EditItem params={params} />
       </Suspense>
     </section>

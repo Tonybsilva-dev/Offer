@@ -21,7 +21,7 @@ export function ItemGallery({ images, alt }: { images: string[]; alt: string }) 
 
   return (
     <div className="space-y-3">
-      <div className="relative overflow-hidden rounded-xl border border-border bg-card">
+      <div className="relative overflow-hidden border-2 border-foreground bg-card">
         <div
           ref={track}
           onScroll={onScroll}
@@ -44,7 +44,7 @@ export function ItemGallery({ images, alt }: { images: string[]; alt: string }) 
           <>
             <NavButton label="Foto anterior" onClick={() => goTo(index - 1)} side="left" />
             <NavButton label="Próxima foto" onClick={() => goTo(index + 1)} side="right" />
-            <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white">
+            <span className="absolute bottom-2 right-2 border-2 border-foreground bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
               {index + 1}/{images.length}
             </span>
           </>
@@ -59,8 +59,8 @@ export function ItemGallery({ images, alt }: { images: string[]; alt: string }) 
               onClick={() => goTo(i)}
               aria-label={`Ver foto ${i + 1}`}
               aria-current={i === index}
-              className={`relative size-16 shrink-0 overflow-hidden rounded-lg border-2 ${
-                i === index ? "border-foreground" : "border-transparent opacity-70"
+              className={`relative size-16 shrink-0 overflow-hidden border-2 ${
+                i === index ? "border-accent outline-2 outline-foreground" : "border-foreground opacity-70"
               }`}
             >
               <Image src={imageUrl(name)} alt="" fill sizes="64px" className="object-cover" />
@@ -78,7 +78,7 @@ function NavButton({ label, onClick, side }: { label: string; onClick: () => voi
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`absolute top-1/2 ${side === "left" ? "left-2" : "right-2"} -translate-y-1/2 rounded-full bg-black/50 px-3 py-1.5 text-lg text-white hover:bg-black/70`}
+      className={`absolute top-1/2 ${side === "left" ? "left-2" : "right-2"} -translate-y-1/2 border-2 border-foreground bg-card px-3 py-1.5 text-lg font-bold text-foreground hover:bg-accent`}
     >
       {side === "left" ? "‹" : "›"}
     </button>

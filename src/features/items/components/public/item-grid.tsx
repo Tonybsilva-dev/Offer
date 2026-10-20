@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { Skeleton } from "@/components/ui/skeleton";
 import { itemRepository } from "../../server/container";
 import { ItemCard } from "./item-card";
 
@@ -10,7 +11,7 @@ export async function ItemGrid({ searchParams }: { searchParams: Promise<{ q?: s
 
   if (items.length === 0) {
     return (
-      <p className="py-16 text-center text-muted">
+      <p className="py-16 text-center text-muted-foreground">
         {query ? `Nenhum item encontrado para "${query}".` : "Nenhum item cadastrado ainda."}
       </p>
     );
@@ -31,7 +32,9 @@ export function ItemGridSkeleton() {
   return (
     <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" aria-busy="true">
       {Array.from({ length: 8 }, (_, i) => (
-        <li key={i} className="aspect-[1/1.15] animate-pulse rounded-xl bg-border/50" />
+        <li key={i}>
+          <Skeleton className="aspect-[1/1.15]" />
+        </li>
       ))}
     </ul>
   );

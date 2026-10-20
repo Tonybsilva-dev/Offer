@@ -2,7 +2,10 @@
 
 import { ITEM_CONDITIONS, ITEM_STATUSES, type Item } from "../../domain/item";
 import { ITEM_LIMITS } from "../../domain/limits";
-import { Checkbox, Field, Fieldset, inputClass, Select } from "./form-fields";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox, Field, Fieldset, Select } from "./form-fields";
 import { ImagesField } from "./images-field";
 import { KeyValueList } from "./key-value-list";
 import { TagsField } from "./tags-field";
@@ -14,7 +17,7 @@ export function ItemForm({ item }: { item?: Item }) {
   return (
     <form onSubmit={submit} className="space-y-6">
       {errors.length > 0 && (
-        <ul role="alert" className="space-y-1 rounded-xl border border-red-600/40 bg-red-600/10 p-4 text-sm text-red-700">
+        <ul role="alert" className="space-y-1 border border-2 border-destructive bg-destructive/10 p-4 text-sm font-medium text-destructive">
           {errors.map((error) => (
             <li key={error}>{error}</li>
           ))}
@@ -35,14 +38,14 @@ export function ItemForm({ item }: { item?: Item }) {
       <Fieldset legend="Identificação">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Título curto *" hint="Aparece na vitrine. Ex.: Bicicleta">
-            <input value={state.title} maxLength={ITEM_LIMITS.titleMax} required onChange={(e) => set("title", e.target.value)} className={inputClass} />
+            <Input value={state.title} maxLength={ITEM_LIMITS.titleMax} required onChange={(e) => set("title", e.target.value)} />
           </Field>
           <Field label="Marca *">
-            <input value={state.brand} required onChange={(e) => set("brand", e.target.value)} className={inputClass} />
+            <Input value={state.brand} required onChange={(e) => set("brand", e.target.value)} />
           </Field>
         </div>
         <Field label="Nome completo" hint="Aparece na página do item. Ex.: Bicicleta Caloi Elite Aro 29">
-          <input value={state.fullName} onChange={(e) => set("fullName", e.target.value)} className={inputClass} />
+          <Input value={state.fullName} onChange={(e) => set("fullName", e.target.value)} />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Estado">
@@ -56,7 +59,7 @@ export function ItemForm({ item }: { item?: Item }) {
 
       <Fieldset legend="Venda">
         <Field label="Valor de venda (R$) *" hint="Ex.: 1.250,00">
-          <input value={state.price} inputMode="decimal" required onChange={(e) => set("price", e.target.value)} className={inputClass} />
+          <Input value={state.price} inputMode="decimal" required onChange={(e) => set("price", e.target.value)} />
         </Field>
         <div className="flex flex-wrap gap-6">
           <Checkbox label="Este já é o menor valor" checked={state.isLowestPrice} onChange={(v) => set("isLowestPrice", v)} />
@@ -66,7 +69,7 @@ export function ItemForm({ item }: { item?: Item }) {
 
       <Fieldset legend="Descrição e tags">
         <Field label="Descrição">
-          <textarea value={state.description} rows={5} onChange={(e) => set("description", e.target.value)} className={inputClass} />
+          <Textarea value={state.description} rows={5} onChange={(e) => set("description", e.target.value)} />
         </Field>
         <TagsField tags={state.tags} onChange={(tags) => set("tags", tags)} />
       </Fieldset>
@@ -96,10 +99,10 @@ export function ItemForm({ item }: { item?: Item }) {
         />
       </Fieldset>
 
-      <div className="sticky bottom-0 flex justify-end gap-3 border-t border-border bg-background/90 py-3 backdrop-blur">
-        <button disabled={saving} className="rounded-lg bg-foreground px-5 py-2 text-background disabled:opacity-60">
+      <div className="sticky bottom-0 flex justify-end gap-3 border-t-2 border-foreground bg-background/90 py-3 backdrop-blur">
+        <Button type="submit" size="lg" variant="accent" disabled={saving}>
           {saving ? "Salvando..." : item ? "Salvar alterações" : "Cadastrar item"}
-        </button>
+        </Button>
       </div>
     </form>
   );

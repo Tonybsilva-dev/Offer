@@ -8,8 +8,8 @@ export function ItemSummary({ item }: { item: Item }) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm text-muted">{item.brand}</p>
-        <h1 className="text-2xl font-semibold tracking-tight">{item.fullName || item.title}</h1>
+        <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{item.brand}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{item.fullName || item.title}</h1>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -21,18 +21,20 @@ export function ItemSummary({ item }: { item: Item }) {
       </div>
 
       <div>
-        <p className="text-3xl font-bold">{formatCents(item.priceCents)}</p>
+        <p className="text-4xl font-bold tracking-tight">{formatCents(item.priceCents)}</p>
         {item.isLowestPrice ? (
-          <p className="mt-1 text-sm font-medium text-accent">Este já é o menor valor.</p>
+          <p className="mt-2 inline-block border-2 border-foreground bg-accent px-2 py-0.5 text-xs font-semibold tracking-wide text-accent-foreground uppercase">
+            Este já é o menor valor
+          </p>
         ) : (
-          <p className="mt-1 text-sm text-muted">Valor negociável.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Valor negociável.</p>
         )}
       </div>
 
       {item.tags.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label="Tags">
           {item.tags.map((tag) => (
-            <li key={tag} className="rounded-md border border-border px-2 py-0.5 text-xs text-muted">
+            <li key={tag} className="border-2 border-border px-2 py-0.5 text-xs text-muted-foreground">
               #{tag}
             </li>
           ))}

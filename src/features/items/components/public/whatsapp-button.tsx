@@ -1,6 +1,6 @@
 export function WhatsAppButton({ href, disabled }: { href: string | null; disabled?: boolean }) {
   if (!href) {
-    return <p className="text-sm text-muted">Contato pelo WhatsApp indisponível no momento.</p>;
+    return <p className="text-sm text-muted-foreground">Contato pelo WhatsApp indisponível no momento.</p>;
   }
   return (
     <a
@@ -8,7 +8,7 @@ export function WhatsAppButton({ href, disabled }: { href: string | null; disabl
       target="_blank"
       rel="noopener noreferrer"
       aria-disabled={disabled}
-      className={`flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3.5 font-semibold text-white shadow-sm transition hover:brightness-95 ${
+      className={`flex w-full items-center justify-center gap-2 border-2 border-foreground bg-[#25D366] px-5 py-3.5 font-bold tracking-wide text-black uppercase shadow-hard transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:brightness-95 ${
         disabled ? "pointer-events-none opacity-50" : ""
       }`}
     >

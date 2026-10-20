@@ -1,5 +1,6 @@
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "@/shared/server/env";
 import { getBaseUrl } from "@/shared/server/base-url";
 import { allImages } from "../../domain/item";
@@ -31,15 +32,15 @@ export async function ItemDetail({ params }: { params: Promise<{ id: string }> }
 
       {item.description && (
         <section>
-          <h2 className="mb-2 text-lg font-semibold">Descrição</h2>
-          <p className="whitespace-pre-line leading-relaxed text-muted">{item.description}</p>
+          <h2 className="mb-2 text-xl font-bold">Descrição</h2>
+          <p className="whitespace-pre-line leading-relaxed text-muted-foreground">{item.description}</p>
         </section>
       )}
 
       <ItemAccordion details={item.details} />
       <ItemSpecsTable item={item} />
       <WhatsAppButton href={whatsappHref} disabled={item.status === "vendido"} />
-      <p className="text-center text-xs text-muted">ID do item: {item.id}</p>
+      <p className="text-center text-xs text-muted-foreground">ID do item: {item.id}</p>
     </article>
   );
 }
@@ -47,10 +48,10 @@ export async function ItemDetail({ params }: { params: Promise<{ id: string }> }
 export function ItemDetailSkeleton() {
   return (
     <div className="grid gap-6 md:grid-cols-2" aria-busy="true">
-      <div className="aspect-square animate-pulse rounded-xl bg-border/50" />
+      <Skeleton className="aspect-square" />
       <div className="space-y-3">
-        <div className="h-8 w-2/3 animate-pulse rounded bg-border/50" />
-        <div className="h-10 w-1/3 animate-pulse rounded bg-border/50" />
+        <Skeleton className="h-8 w-2/3" />
+        <Skeleton className="h-10 w-1/3" />
       </div>
     </div>
   );

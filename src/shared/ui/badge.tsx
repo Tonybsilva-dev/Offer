@@ -1,14 +1,16 @@
+import { Badge as UiBadge } from "@/components/ui/badge";
+
 const TONES = {
-  neutral: "bg-border/60 text-foreground",
-  success: "bg-green-600/15 text-green-700 dark:text-green-400",
-  warning: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  danger: "bg-red-600/15 text-red-700 dark:text-red-400",
+  neutral: "border-foreground bg-card text-foreground",
+  success: "border-success bg-success/15 text-success",
+  warning: "border-warning bg-warning/20 text-foreground",
+  danger: "border-destructive bg-destructive/10 text-destructive",
 } as const;
 
 export function Badge({ children, tone = "neutral" }: { children: React.ReactNode; tone?: keyof typeof TONES }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TONES[tone]}`}>
+    <UiBadge variant="outline" className={TONES[tone]}>
       {children}
-    </span>
+    </UiBadge>
   );
 }

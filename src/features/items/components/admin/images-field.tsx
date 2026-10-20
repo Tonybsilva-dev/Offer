@@ -46,15 +46,15 @@ export function ImagesField({ mainImage, images, onChange }: Props) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <p className="text-sm font-medium">Imagem principal *</p>
+        <p className="text-xs font-semibold tracking-wide uppercase">Imagem principal *</p>
         <div className="flex items-center gap-3">
-          {mainImage ? <Thumb name={mainImage} /> : <div className="size-24 rounded-lg border border-dashed border-border" />}
+          {mainImage ? <Thumb name={mainImage} /> : <div className="size-24 border-2 border-dashed border-foreground" />}
           <UploadButton label={mainImage ? "Trocar" : "Enviar"} disabled={busy} onFiles={(f) => handle(f, "main")} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-medium">
+        <p className="text-xs font-semibold tracking-wide uppercase">
           Outras fotos ({images.length}/{ITEM_LIMITS.extraImagesMax})
         </p>
         <ul className="flex flex-wrap gap-3">
@@ -66,7 +66,7 @@ export function ImagesField({ mainImage, images, onChange }: Props) {
                 <button
                   type="button"
                   onClick={() => onChange({ mainImage, images: images.filter((i) => i !== name) })}
-                  className="text-red-600 hover:underline"
+                  className="text-destructive hover:underline"
                 >
                   Remover
                 </button>
@@ -79,9 +79,9 @@ export function ImagesField({ mainImage, images, onChange }: Props) {
         )}
       </div>
 
-      {busy && <p className="text-sm text-muted">Enviando...</p>}
+      {busy && <p className="text-sm text-muted-foreground">Enviando...</p>}
       {errors.map((error) => (
-        <p key={error} className="text-sm text-red-600">{error}</p>
+        <p key={error} className="text-sm text-destructive">{error}</p>
       ))}
     </div>
   );
@@ -89,7 +89,7 @@ export function ImagesField({ mainImage, images, onChange }: Props) {
 
 function Thumb({ name }: { name: string }) {
   return (
-    <div className="relative size-24 overflow-hidden rounded-lg border border-border bg-border/40">
+    <div className="relative size-24 overflow-hidden border-2 border-foreground bg-muted">
       <Image src={imageUrl(name)} alt="" fill sizes="96px" className="object-cover" />
     </div>
   );
@@ -99,7 +99,7 @@ type UploadButtonProps = { label: string; multiple?: boolean; disabled?: boolean
 
 function UploadButton({ label, multiple, disabled, onFiles }: UploadButtonProps) {
   return (
-    <label className={`inline-block cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-border/40 ${disabled ? "pointer-events-none opacity-50" : ""}`}>
+    <label className={`inline-block cursor-pointer border-2 border-foreground bg-card px-3 py-1.5 text-sm font-semibold shadow-hard-sm hover:bg-accent hover:text-accent-foreground ${disabled ? "pointer-events-none opacity-50" : ""}`}>
       {label}
       <input
         type="file"

@@ -1,6 +1,8 @@
 "use client";
 
-import { inputClass } from "./form-fields";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 type Column<T> = { name: keyof T & string; placeholder: string; multiline?: boolean };
 
@@ -38,23 +40,23 @@ export function KeyValueList<T extends Record<string, string>>(props: Props<T>) 
               "aria-label": col.placeholder,
             };
             return col.multiline ? (
-              <textarea
+              <Textarea
                 key={col.name}
                 {...common}
                 rows={2}
                 onChange={(e) => update(index, col.name, e.target.value)}
-                className={`${inputClass} flex-[2]`}
+                className="flex-[2]"
               />
             ) : (
-              <input
+              <Input
                 key={col.name}
                 {...common}
                 onChange={(e) => update(index, col.name, e.target.value)}
-                className={`${inputClass} flex-1`}
+                className="flex-1"
               />
             );
           })}
-          <div className="flex shrink-0 text-muted">
+          <div className="flex shrink-0 text-muted-foreground">
             <IconButton label="Subir" onClick={() => move(index, -1)}>↑</IconButton>
             <IconButton label="Descer" onClick={() => move(index, 1)}>↓</IconButton>
             <IconButton label="Remover" onClick={() => onChange(rows.filter((_, i) => i !== index))}>
@@ -64,13 +66,9 @@ export function KeyValueList<T extends Record<string, string>>(props: Props<T>) 
         </div>
       ))}
       {rows.length < max && (
-        <button
-          type="button"
-          onClick={() => onChange([...rows, { ...empty }])}
-          className="text-sm font-medium hover:underline"
-        >
+        <Button type="button" variant="outline" size="sm" onClick={() => onChange([...rows, { ...empty }])}>
           + {addLabel}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -85,7 +83,7 @@ function IconButton({ label, onClick, children }: IconButtonProps) {
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="rounded px-2 py-2 hover:bg-border/50"
+      className="px-2 py-2 font-bold hover:bg-accent hover:text-accent-foreground"
     >
       {children}
     </button>

@@ -20,7 +20,7 @@ export default function ItemPage({ params }: PageProps<"/item/[id]">) {
   return (
     <>
       <SiteHeader>
-        <Link href="/" className="text-sm text-muted hover:text-foreground">
+        <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
           ← Todos os itens
         </Link>
       </SiteHeader>
