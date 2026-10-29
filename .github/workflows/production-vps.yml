@@ -91,7 +91,8 @@ jobs:
   smoke:
     needs: deploy
     # Só depois da virada do DNS: antes disso o domínio ainda responde pela KVM8 antiga.
-    if: vars.OFFER_SMOKE_ENABLED == 'true'
+    # Em rollback o build é pulado e o GitHub pularia o smoke junto; por isso a condição explícita.
+    if: vars.OFFER_SMOKE_ENABLED == 'true' && !cancelled() && needs.deploy.result == 'success'
     uses: ./.github/workflows/smoke-test.yml
     with:
       public_url: ${{ vars.OFFER_PUBLIC_URL }}
