@@ -1,0 +1,22 @@
+# Etapa SMOKE (reutilizável): confere a URL pública depois do deploy.
+name: Smoke test público
+
+on:
+  workflow_call:
+    inputs:
+      public_url: { type: string, required: true }
+      health_path: { type: string, default: /api/health }
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Consultar o health público
+        env:
+          URL: ${{ inputs.public_url }}
+          HEALTH_PATH: ${{ inputs.health_path }}
+        run: curl -fsS --connect-timeout 10 --max-time 20 --retry 5 --retry-delay 5 --retry-all-errors "${URL%/}${HEALTH_PATH}" > /dev/null

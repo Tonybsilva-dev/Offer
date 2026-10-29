@@ -1,0 +1,43 @@
+# Etapa NOTIFY (reutilizável e OBRIGATÓRIA): avisa no Discord o resultado de todas as etapas.
+# Sem DISCORD_WEBHOOK_URL a etapa falha de propósito: deploy sem aviso não é aceito.
+name: Aviso no Discord
+
+on:
+  workflow_call:
+    inputs:
+      product: { type: string, required: true }
+      service: { type: string, required: true }
+      needs_json: { type: string, required: true, description: "toJSON(needs) do chamador" }
+    secrets:
+      DISCORD_WEBHOOK_URL: { required: true }
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Avisar no Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          NEEDS: ${{ inputs.needs_json }}
+          WHAT: ${{ inputs.product }}/${{ inputs.service }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -eu
+          [ -n "$WEBHOOK" ] || { echo "::error::DISCORD_WEBHOOK_URL não configurado: o aviso é obrigatório"; exit 1; }
+          STAGES=$(printf '%s' "$NEEDS" | jq -r 'to_entries | map("\(.key): \(.value.result)") | join("\n")')
+          if printf '%s' "$NEEDS" | jq -e 'any(.[]; .result == "failure")' >/dev/null; then
+            TITLE="Falha no pipeline"; COLOR=15158332
+          elif printf '%s' "$NEEDS" | jq -e 'any(.[]; .result == "cancelled")' >/dev/null; then
+            TITLE="Pipeline cancelado"; COLOR=16776960
+          else
+            TITLE="Produção atualizada"; COLOR=3066993
+          fi
+          PAYLOAD=$(jq -n --arg t "$TITLE" --arg w "$WHAT" --arg s "$STAGES" --arg u "$RUN_URL" --arg c "${SHA:0:7}" --arg a "$ACTOR" --argjson col "$COLOR" \
+            '{embeds:[{title:$t, description:$w, color:$col, fields:[{name:"Etapas",value:$s},{name:"Commit",value:("`"+$c+"` por "+$a),inline:true},{name:"Execução",value:("[Abrir]("+$u+")"),inline:true}]}]}')
+          curl -fsS -H 'Content-Type: application/json' -d "$PAYLOAD" "$WEBHOOK"

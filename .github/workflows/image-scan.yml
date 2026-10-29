@@ -1,0 +1,40 @@
+# Etapa SCAN (reutilizável): procura vulnerabilidades HIGH/CRITICAL na imagem publicada.
+# Roda em paralelo ao deploy e só informa (não bloqueia): o relatório vai ao resumo da execução.
+name: Scan da imagem
+
+on:
+  workflow_call:
+    inputs:
+      image: { type: string, required: true }
+      tag: { type: string, required: true }
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: aquasecurity/trivy-action@0.28.0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          image-ref: ${{ inputs.image }}:${{ inputs.tag }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "0"
+          format: table
+          output: trivy.txt
+      - name: Resumo
+        run: |
+          {
+            echo "## Scan da imagem"
+            echo '```'
+            head -c 60000 trivy.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

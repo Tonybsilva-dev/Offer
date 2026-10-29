@@ -1,8 +1,8 @@
 name: Bazar Production CI/CD
 
+# Pausado: os secrets SSH_* agora apontam para a VPS nova (production-vps.yml). Deploy manual
+# na KVM8 só se os valores antigos forem restaurados. Apague este arquivo após a virada do DNS.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:

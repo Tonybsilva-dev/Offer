@@ -1,0 +1,74 @@
+# Etapa DEPLOY (reutilizável): grava o .env.production na VPS e chama scripts/deploy-service.sh,
+# que espera "healthy" e volta sozinho à tag anterior se falhar. Não notifica nem testa a URL pública
+# (são etapas próprias: smoke-test.yml e notify.yml).
+name: Deploy na VPS
+
+on:
+  workflow_call:
+    inputs:
+      product: { type: string, required: true }
+      service: { type: string, required: true }
+      tag: { type: string, required: true }
+      public_url: { type: string, required: true }
+    secrets:
+      SSH_HOST: { required: true }
+      SSH_USERNAME: { required: true }
+      SSH_PRIVATE_KEY: { required: true }
+      SSH_KNOWN_HOSTS: { required: true }
+      RUNTIME_ENV: { required: true }
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment:
+      name: Production
+      url: ${{ inputs.public_url }}
+    permissions:
+      contents: read
+      packages: read
+    env:
+      PRODUCT: ${{ inputs.product }}
+      SERVICE: ${{ inputs.service }}
+      TAG: ${{ inputs.tag }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      GHCR_USER: ${{ github.actor }}
+      GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RUNTIME_ENV: ${{ secrets.RUNTIME_ENV }}
+    steps:
+      - name: Configurar SSH com host verificado
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          set -eu
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Enviar variáveis de runtime
+        run: |
+          set -eu
+          REMOTE_DIR="/srv/infra-vps/apps/$PRODUCT/production/$SERVICE"
+          printf '%s\n' "$RUNTIME_ENV" | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$SSH_USERNAME@$SSH_HOST" "umask 077 && cat > '$REMOTE_DIR/.env.production'"
+
+      - name: Deploy com rollback automático
+        run: |
+          set -eu
+          printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$SSH_USERNAME@$SSH_HOST" \
+            "export DOCKER_CONFIG=\$(mktemp -d); trap 'rm -rf \"\$DOCKER_CONFIG\"' EXIT; docker login ghcr.io -u '$GHCR_USER' --password-stdin >/dev/null && /srv/infra-vps/scripts/deploy-service.sh '$PRODUCT' '$SERVICE' '$TAG'"
+
+      - name: Resumo
+        run: |
+          {
+            echo "## Deploy $PRODUCT/$SERVICE"
+            echo "- Tag: \`$TAG\`"
+            echo "- Rollback: rode o workflow com \`image_tag\` = tag anterior (consulte deploy.log na VPS)"
+          } >> "$GITHUB_STEP_SUMMARY"

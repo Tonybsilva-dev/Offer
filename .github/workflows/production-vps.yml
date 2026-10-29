@@ -1,0 +1,107 @@
+# Offer na VPS nova, em etapas separadas (padrão do infra-vps, docs/workflow-padrao.md):
+#
+#   quality ─┬─ build ─┬─ deploy ── smoke ─┐
+#            │         └─ scan ────────────┤
+#            └─ audit ─────────────────────┴─ notify (sempre, obrigatório)
+#
+# Convive com production.yml (KVM8 antiga) até a virada do DNS; depois desta, apague production.yml.
+name: Offer Production VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Rollback: tag a reimplantar (vazio = build do commit atual)"
+        required: false
+        default: ""
+
+concurrency:
+  group: offer-production-vps
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    if: inputs.image_tag == ''
+    uses: ./.github/workflows/quality.yml
+
+  audit:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Informativo: dependência vulnerável aparece no resumo sem travar o deploy.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --prefer-offline
+      - run: pnpm audit --prod --audit-level=high
+
+  build:
+    needs: quality
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-image.yml
+    with:
+      image: ghcr.io/tonybsilva-dev/offer
+      scope: offer-web
+      build_args: NEXT_PUBLIC_SITE_URL=${{ vars.OFFER_PUBLIC_URL }}
+
+  scan:
+    needs: build
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/image-scan.yml
+    with:
+      image: ghcr.io/tonybsilva-dev/offer
+      tag: ${{ needs.build.outputs.tag }}
+
+  deploy:
+    needs: build
+    # Em rollback o build é pulado; failure() só dispara se uma etapa anterior falhou.
+    if: github.ref == 'refs/heads/main' && !cancelled() && !failure()
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      product: offer
+      service: web
+      tag: ${{ inputs.image_tag != '' && inputs.image_tag || needs.build.outputs.tag }}
+      public_url: ${{ vars.OFFER_PUBLIC_URL }}
+    secrets:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      RUNTIME_ENV: ${{ secrets.OFFER_ENV_PRODUCTION }}
+
+  smoke:
+    needs: deploy
+    # Só depois da virada do DNS: antes disso o domínio ainda responde pela KVM8 antiga.
+    if: vars.OFFER_SMOKE_ENABLED == 'true'
+    uses: ./.github/workflows/smoke-test.yml
+    with:
+      public_url: ${{ vars.OFFER_PUBLIC_URL }}
+
+  notify:
+    needs: [quality, audit, build, scan, deploy, smoke]
+    if: always()
+    uses: ./.github/workflows/notify.yml
+    with:
+      product: offer
+      service: web
+      needs_json: ${{ toJSON(needs) }}
+    secrets:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_PRODUCTION }}
