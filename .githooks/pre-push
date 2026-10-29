@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Barra o push se o QA completo falhar. Ative uma vez por clone: git config core.hooksPath .githooks
+# Para pular em emergência: git push --no-verify (o CI cobra o mesmo e vai falhar).
+exec bash "$(git rev-parse --show-toplevel)/scripts/qa.sh"

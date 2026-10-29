@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   notify:
+    name: Aviso no Discord
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
