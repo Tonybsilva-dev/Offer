@@ -6,6 +6,7 @@ import { detectImageType, IMAGE_CONTENT_TYPES, MAX_UPLOAD_BYTES, type ImageExten
 import type { ImageStore } from "./image-store";
 import { LocalImageStore } from "./local-image-store";
 import { R2ImageStore } from "./r2-image-store";
+import { toWebp } from "./to-webp";
 
 let store: ImageStore | null = null;
 
@@ -28,8 +29,15 @@ export async function saveImage(file: File): Promise<SaveResult> {
   const extension = detectImageType(bytes);
   if (!extension) return { ok: false, error: `${file.name}: formato não suportado` };
 
-  const name = `${nanoid(16)}.${extension}`;
-  await imageStore().put(name, bytes, IMAGE_CONTENT_TYPES[extension]);
+  let webp: Uint8Array;
+  try {
+    webp = await toWebp(bytes, extension);
+  } catch {
+    return { ok: false, error: `${file.name}: imagem corrompida ou ilegível` };
+  }
+
+  const name = `${nanoid(16)}.webp`;
+  await imageStore().put(name, webp, IMAGE_CONTENT_TYPES.webp);
   return { ok: true, name };
 }
 
