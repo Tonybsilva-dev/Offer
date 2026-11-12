@@ -26,6 +26,17 @@ Configurar no GitHub (repositório → Settings):
 
 Na VPS: Nginx/DNS/Certbot iguais ao Learn, com `proxy_pass http://127.0.0.1:3000`.
 
+### Sem o Actions
+
+Quando o GitHub Actions não roda, `deploy/ship.sh` faz o mesmo caminho pela estação: QA, build local, envio da imagem por SSH e troca do container com rollback para a tag anterior.
+
+```bash
+deploy/ship.sh        # QA, build e envio; não sobe nada
+deploy/ship.sh --up   # também troca o container e espera healthy
+```
+
+O `.env.production` da VPS não é alterado pelo script.
+
 ## Scripts
 
 `pnpm qa` (lint + typecheck + testes) · `pnpm test` · `pnpm build` · `pnpm start`
