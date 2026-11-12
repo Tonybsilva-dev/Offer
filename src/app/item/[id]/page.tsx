@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ItemDetail, ItemDetailSkeleton } from "@/features/items/components/public/item-detail";
 import { itemRepository } from "@/features/items/server/container";
-import { ITEM_CONDITIONS } from "@/features/items/domain/item";
+import { ITEM_CATEGORIES, ITEM_CONDITIONS } from "@/features/items/domain/item";
 import { formatCents } from "@/features/items/domain/price";
 import { SiteHeader } from "@/shared/ui/site-header";
 
@@ -18,6 +18,8 @@ export async function generateMetadata({ params }: PageProps<"/item/[id]">): Pro
   return {
     title,
     description,
+    // Tags do item mais marca e categoria, para que um item sem tags também tenha keywords.
+    keywords: [...new Set([...item.tags, item.brand, ITEM_CATEGORIES[item.category]].map((k) => k.trim().toLowerCase()).filter(Boolean))],
     alternates: { canonical: `/item/${item.id}` },
     // O openGraph da página substitui o do layout por inteiro, então siteName e locale precisam ser repetidos.
     openGraph: { type: "website", siteName: "Offer", locale: "pt_BR", title, description, url: `/item/${item.id}` },
