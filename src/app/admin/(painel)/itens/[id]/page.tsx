@@ -8,7 +8,7 @@ import { itemRepository } from "@/features/items/server/container";
 async function EditItem({ params }: { params: Promise<{ id: string }> }) {
   await connection();
   await requireAdmin();
-  const item = await itemRepository().findById((await params).id);
+  const item = await itemRepository().findById((await params).id, { includeHidden: true });
   if (!item) notFound();
   return <ItemForm key={item.updatedAt} item={item} />;
 }

@@ -1,6 +1,6 @@
 import type { Item, ItemInput } from "../domain/item";
 import { generateItemId } from "./item-id";
-import { matchesQuery, type ItemListFilter, type ItemRepository } from "./item-repository";
+import { matchesFilter, type ItemListFilter, type ItemLookup, type ItemRepository } from "./item-repository";
 
 export class InMemoryItemRepository implements ItemRepository {
   private items = new Map<string, Item>();
@@ -9,12 +9,13 @@ export class InMemoryItemRepository implements ItemRepository {
 
   async list(filter?: ItemListFilter) {
     return [...this.items.values()]
-      .filter((item) => matchesQuery(item, filter?.query))
+      .filter((item) => matchesFilter(item, filter))
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
-  async findById(id: string) {
-    return this.items.get(id) ?? null;
+  async findById(id: string, lookup?: ItemLookup) {
+    const item = this.items.get(id) ?? null;
+    return item && (!item.hidden || lookup?.includeHidden) ? item : null;
   }
 
   async create(input: ItemInput) {
@@ -28,6 +29,14 @@ export class InMemoryItemRepository implements ItemRepository {
     const current = this.items.get(id);
     if (!current) return null;
     const item: Item = { ...current, ...input, updatedAt: this.now().toISOString() };
+    this.items.set(id, item);
+    return item;
+  }
+
+  async setHidden(id: string, hidden: boolean) {
+    const current = this.items.get(id);
+    if (!current) return null;
+    const item: Item = { ...current, hidden, updatedAt: this.now().toISOString() };
     this.items.set(id, item);
     return item;
   }

@@ -1,11 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { parseItemFilters } from "@/features/items/server/item-repository";
 import { parseItemInput } from "@/features/items/domain/item-schema";
 import { itemRepository } from "@/features/items/server/container";
 import { guardAdmin, jsonError, readJson } from "@/shared/server/http";
 
 export async function GET(request: NextRequest) {
-  const query = request.nextUrl.searchParams.get("q") ?? undefined;
-  const items = await itemRepository().list({ query });
+  const params = request.nextUrl.searchParams;
+  const filter = parseItemFilters({ q: params.get("q") ?? undefined, category: params.get("category") ?? undefined, condition: params.get("condition") ?? undefined });
+  const items = await itemRepository().list(filter);
   return NextResponse.json({ items });
 }
 

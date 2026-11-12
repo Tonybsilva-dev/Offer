@@ -29,7 +29,7 @@ export default function ItemPage({ params }: PageProps<"/item/[id]">) {
   return (
     <>
       <SiteHeader>
-        <Link href="/" className="text-sm font-semibold hover:underline">
+        <Link href="/" className="-mr-2 flex min-h-11 items-center px-2 text-sm font-semibold outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring">
           ← <span className="hidden sm:inline">Todos os </span>itens
         </Link>
       </SiteHeader>

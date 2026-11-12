@@ -4,13 +4,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "@/shared/server/env";
 import { getBaseUrl } from "@/shared/server/base-url";
 import { allImages } from "../../domain/item";
-import { buildWhatsAppLink } from "../../domain/whatsapp";
+import { buildItemUrl, buildWhatsAppLink } from "../../domain/whatsapp";
 import { itemRepository } from "../../server/container";
 import { ItemAccordion } from "./item-accordion";
 import { ItemGallery } from "./item-gallery";
 import { ItemJsonLd } from "./item-json-ld";
 import { ItemSpecsTable } from "./item-specs-table";
 import { ItemSummary } from "./item-summary";
+import { ShareButton } from "./share-button";
 import { WhatsAppButton } from "./whatsapp-button";
 
 export async function ItemDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -26,10 +27,13 @@ export async function ItemDetail({ params }: { params: Promise<{ id: string }> }
     <article className="min-w-0 space-y-8">
       <ItemJsonLd item={item} baseUrl={baseUrl} />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2">
-        <ItemGallery images={allImages(item)} alt={item.title} />
+        <ItemGallery images={allImages(item)} alt={item.title} status={item.status} />
         <div className="min-w-0 space-y-6">
           <ItemSummary item={item} />
-          <WhatsAppButton href={whatsappHref} disabled={item.status === "vendido"} />
+          <div className="space-y-0.5 lg:mt-24">
+            <ShareButton url={buildItemUrl(baseUrl, item.id)} title={item.fullName || item.title} />
+            <WhatsAppButton href={whatsappHref} disabled={item.status === "vendido"} />
+          </div>
         </div>
       </div>
 

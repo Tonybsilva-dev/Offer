@@ -21,6 +21,18 @@ export async function PUT(request: Request, ctx: RouteContext<"/api/items/[id]">
   return item ? NextResponse.json({ item }) : jsonError(404, "Item não encontrado");
 }
 
+export async function PATCH(request: Request, ctx: RouteContext<"/api/items/[id]">) {
+  const denied = await guardAdmin();
+  if (denied) return denied;
+
+  const body = (await readJson(request)) as { hidden?: unknown } | null;
+  if (typeof body?.hidden !== "boolean") return jsonError(422, "Informe hidden como verdadeiro ou falso");
+
+  const { id } = await ctx.params;
+  const item = await itemRepository().setHidden(id, body.hidden);
+  return item ? NextResponse.json({ item }) : jsonError(404, "Item não encontrado");
+}
+
 export async function DELETE(_request: Request, ctx: RouteContext<"/api/items/[id]">) {
   const denied = await guardAdmin();
   if (denied) return denied;

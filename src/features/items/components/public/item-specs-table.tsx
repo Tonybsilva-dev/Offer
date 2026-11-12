@@ -1,7 +1,16 @@
-import { ITEM_CONDITIONS, type Item } from "../../domain/item";
+import Link from "next/link";
+import { ITEM_CATEGORIES, ITEM_CONDITIONS, type Item } from "../../domain/item";
 
 export function ItemSpecsTable({ item }: { item: Item }) {
   const rows = [
+    {
+      key: "Categoria",
+      value: (
+        <Link href={`/?category=${item.category}`} className="underline underline-offset-4 hover:text-foreground">
+          {ITEM_CATEGORIES[item.category]}
+        </Link>
+      ),
+    },
     { key: "Marca", value: item.brand },
     { key: "Estado", value: ITEM_CONDITIONS[item.condition] },
     ...item.specs,

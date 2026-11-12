@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ITEM_CONDITIONS, ITEM_STATUSES, type ItemInput } from "./item";
+import { ITEM_CATEGORIES, ITEM_CONDITIONS, ITEM_STATUSES, type ItemInput } from "./item";
 import { IMAGE_NAME_PATTERN, ITEM_LIMITS as L } from "./limits";
 import { parsePriceToCents } from "./price";
 
@@ -20,8 +20,14 @@ export const itemInputSchema = z
     title: required(L.titleMax, "Título"),
     fullName: text(L.fullNameMax).default(""),
     brand: required(L.brandMax, "Marca"),
+    category: z.enum(Object.keys(ITEM_CATEGORIES) as [keyof typeof ITEM_CATEGORIES]).default("outros"),
+    whatsappNumber: z.string().trim().max(40).default("")
+      .refine((value) => value === "" || /^\+?[\d\s().-]+$/.test(value), "WhatsApp inválido")
+      .transform((value) => value.replace(/\D/g, ""))
+      .refine((value) => value === "" || /^[1-9]\d{9,14}$/.test(value), "Informe o WhatsApp com código do país e DDD (10 a 15 dígitos)"),
     condition: z.enum(conditionKeys),
     status: z.enum(statusKeys).default("disponivel"),
+    hidden: z.boolean().default(false),
     description: text(L.descriptionMax).default(""),
     price: z.union([z.string(), z.number()]).default(""),
     isLot: z.boolean().default(false),

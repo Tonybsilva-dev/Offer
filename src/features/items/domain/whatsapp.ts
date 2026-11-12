@@ -2,7 +2,7 @@ import type { Item } from "./item";
 
 type WhatsAppLinkInput = {
   phone: string;
-  item: Pick<Item, "id" | "title">;
+  item: Pick<Item, "id" | "title"> & Partial<Pick<Item, "whatsappNumber">>;
   baseUrl: string;
 };
 
@@ -19,7 +19,7 @@ export function buildWhatsAppMessage(item: Pick<Item, "id" | "title">, itemUrl: 
 }
 
 export function buildWhatsAppLink({ phone, item, baseUrl }: WhatsAppLinkInput): string | null {
-  const digits = phone.replace(/\D/g, "");
+  const digits = (item.whatsappNumber?.trim() || phone).replace(/\D/g, "");
   if (digits.length < 10) return null;
   const message = buildWhatsAppMessage(item, buildItemUrl(baseUrl, item.id));
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;

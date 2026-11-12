@@ -1,3 +1,21 @@
+export const ITEM_CATEGORIES = {
+  eletronicos: "Eletrônicos",
+  informatica: "Informática",
+  celulares: "Celulares e acessórios",
+  eletrodomesticos: "Eletrodomésticos",
+  moveis: "Móveis",
+  "casa-decoracao": "Casa e decoração",
+  "roupas-acessorios": "Roupas e acessórios",
+  "esportes-lazer": "Esportes e lazer",
+  "livros-papelaria": "Livros e papelaria",
+  "brinquedos-jogos": "Brinquedos e jogos",
+  ferramentas: "Ferramentas",
+  "saude-estetica": "Saúde e estética",
+  outros: "Outros",
+} as const;
+
+export type ItemCategory = keyof typeof ITEM_CATEGORIES;
+
 export const ITEM_CONDITIONS = {
   novo: "Novo",
   seminovo: "Seminovo",
@@ -22,8 +40,12 @@ export type Item = {
   title: string;
   fullName: string;
   brand: string;
+  category: ItemCategory;
+  whatsappNumber: string;
   condition: ItemCondition;
   status: ItemStatus;
+  /** Oculto da vitrine, do sitemap e da página do item; continua visível no painel. */
+  hidden: boolean;
   description: string;
   priceCents: number;
   isLot: boolean;

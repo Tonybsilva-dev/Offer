@@ -52,4 +52,31 @@ describe.each<[string, () => Promise<ItemRepository>]>([
     expect((await repo.list({ query: "bicicleta caloi" })).map((i) => i.title)).toEqual(["Bicicleta"]);
     expect(await repo.list()).toHaveLength(2);
   });
+  it("oculta itens da vitrine mas os mantém para o painel", async () => {
+    const repo = await make();
+    const visible = await repo.create(input({ title: "Visível" }));
+    const hidden = await repo.create(input({ title: "Escondido", hidden: true }));
+    expect((await repo.list()).map((i) => i.id)).toEqual([visible.id]);
+    expect(await repo.findById(hidden.id)).toBeNull();
+    expect((await repo.list({ includeHidden: true })).map((i) => i.id).sort()).toEqual([visible.id, hidden.id].sort());
+    expect((await repo.findById(hidden.id, { includeHidden: true }))?.hidden).toBe(true);
+
+    expect((await repo.setHidden(visible.id, true))?.hidden).toBe(true);
+    expect(await repo.list()).toEqual([]);
+    expect((await repo.setHidden(visible.id, false))?.hidden).toBe(false);
+    expect((await repo.list()).map((i) => i.id)).toEqual([visible.id]);
+    expect(await repo.setHidden("inexistente", true)).toBeNull();
+  });
+  it("persists contact and combines category, condition and text filters", async () => {
+    const repo = await make();
+    const bike = await repo.create(input({ category: "esportes-lazer", whatsappNumber: "+55 (85) 99999-9999" }));
+    await repo.create(input({ title: "Headset", category: "informatica", condition: "novo" }));
+    expect((await repo.findById(bike.id))?.whatsappNumber).toBe("5585999999999");
+    expect(await repo.list({ category: "esportes-lazer", condition: "seminovo", query: "caloi" })).toEqual([bike]);
+    expect(await repo.list({ category: "esportes-lazer", condition: "novo" })).toEqual([]);
+    const updated = await repo.update(bike.id, input({ category: "outros", whatsappNumber: "" }));
+    expect(updated?.category).toBe("outros");
+    expect(updated?.whatsappNumber).toBe("");
+  });
+
 });

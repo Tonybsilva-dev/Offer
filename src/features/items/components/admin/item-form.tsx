@@ -1,6 +1,8 @@
 "use client";
 
-import { ITEM_CONDITIONS, ITEM_STATUSES, type Item } from "../../domain/item";
+import Link from "next/link";
+import { useEffect, useRef } from "react";
+import { ITEM_CATEGORIES, ITEM_CONDITIONS, ITEM_STATUSES, type Item } from "../../domain/item";
 import { ITEM_LIMITS } from "../../domain/limits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +15,17 @@ import { useItemForm } from "./use-item-form";
 
 export function ItemForm({ item }: { item?: Item }) {
   const { state, set, submit, errors, saving } = useItemForm(item);
+  const errorSummary = useRef<HTMLUListElement>(null);
+
+  // Após uma tentativa falha, leva o foco ao resumo para teclado e leitores de tela.
+  useEffect(() => {
+    if (errors.length) errorSummary.current?.focus();
+  }, [errors]);
 
   return (
     <form onSubmit={submit} className="space-y-6">
       {errors.length > 0 && (
-        <ul role="alert" className="space-y-1 border border-2 border-destructive bg-destructive/10 p-4 text-sm font-medium text-destructive">
+        <ul ref={errorSummary} tabIndex={-1} role="alert" className="space-y-1 border-2 border-destructive bg-destructive/10 p-4 text-sm font-medium text-destructive outline-none focus-visible:ring-3 focus-visible:ring-destructive/40">
           {errors.map((error) => (
             <li key={error}>{error}</li>
           ))}
@@ -26,9 +34,8 @@ export function ItemForm({ item }: { item?: Item }) {
 
       <Fieldset legend="Fotos">
         <ImagesField
-          mainImage={state.mainImage}
-          images={state.images}
-          onChange={({ mainImage, images }) => {
+          photos={[state.mainImage, ...state.images].filter(Boolean)}
+          onChange={([mainImage = "", ...images]) => {
             set("mainImage", mainImage);
             set("images", images);
           }}
@@ -48,6 +55,9 @@ export function ItemForm({ item }: { item?: Item }) {
           <Input value={state.fullName} onChange={(e) => set("fullName", e.target.value)} />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Categoria">
+            <Select value={state.category} options={ITEM_CATEGORIES} onChange={(v) => set("category", v)} />
+          </Field>
           <Field label="Estado">
             <Select value={state.condition} options={ITEM_CONDITIONS} onChange={(v) => set("condition", v)} />
           </Field>
@@ -55,9 +65,18 @@ export function ItemForm({ item }: { item?: Item }) {
             <Select value={state.status} options={ITEM_STATUSES} onChange={(v) => set("status", v)} />
           </Field>
         </div>
+        <div className="space-y-1">
+          <Checkbox label="Ocultar da vitrine" checked={state.hidden} onChange={(v) => set("hidden", v)} />
+          <p className="text-xs text-muted-foreground">
+            O item deixa de aparecer na vitrine, no sitemap e no link direto (que passa a mostrar “não encontrado”). Continua aqui no painel.
+          </p>
+        </div>
       </Fieldset>
 
       <Fieldset legend="Venda">
+        <Field label="WhatsApp específico" hint="Opcional. Inclua código do país e DDD, ex.: +55 (85) 99999-9999. Em branco, usa o contato padrão do site.">
+          <Input type="tel" maxLength={40} value={state.whatsappNumber} onChange={(e) => set("whatsappNumber", e.target.value)} />
+        </Field>
         <Checkbox
           label="Lote de itens diversos (cada item tem seu preço)"
           checked={state.isLot}
@@ -111,8 +130,11 @@ export function ItemForm({ item }: { item?: Item }) {
         />
       </Fieldset>
 
-      <div className="sticky bottom-0 flex justify-end gap-3 border-t-2 border-foreground bg-background/90 py-3 backdrop-blur">
-        <Button type="submit" size="lg" variant="accent" className="w-full sm:w-auto" disabled={saving}>
+      <div className="sticky bottom-0 z-10 flex gap-3 border-t-2 border-foreground bg-background/90 py-3 backdrop-blur sm:justify-end">
+        <Button size="lg" variant="outline" nativeButton={false} render={<Link href="/admin" />}>
+          Cancelar
+        </Button>
+        <Button type="submit" size="lg" variant="accent" className="flex-1 sm:flex-none" disabled={saving}>
           {saving ? "Salvando..." : item ? "Salvar alterações" : "Cadastrar item"}
         </Button>
       </div>
